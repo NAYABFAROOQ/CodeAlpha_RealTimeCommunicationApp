@@ -13,8 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { usePWA } from '../context/PWAContext';
-import { GradientBar } from './GradientBar';
-import { Bg3DBar } from './Bg3DBar';
+
 
 export const Navbar = ({ onNavigate, currentPage }) => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -53,11 +52,7 @@ export const Navbar = ({ onNavigate, currentPage }) => {
         </div>
       </div>
 
-      {/* Center: Live Atmosphere & 3D Switchers (Peach / Amber / Coral + 3D Visuals) */}
-      <div className="hidden md:flex items-center space-x-2">
-        <GradientBar compact={true} />
-        <Bg3DBar compact={true} />
-      </div>
+
 
       {/* Right User Actions & Controls */}
       <div className="flex items-center space-x-2 sm:space-x-3">
