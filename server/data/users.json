@@ -1,0 +1,11 @@
+[
+  {
+    "_id": "021d091d-18ab-4afd-bf85-2b4c008702cf",
+    "username": "TestEngineer",
+    "email": "engineer@codealpha.io",
+    "password": "$2b$10$PddVRGfYXjbOhD5bRQJ4AeygqiAmfdPlRZNv7RN2rLJiX.m1m7aNe",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=TestEngineer",
+    "role": "user",
+    "createdAt": "2026-10-03T21:40:41.043Z"
+  }
+]

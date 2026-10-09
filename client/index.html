@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b5cf6'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AuraMeet - Real-Time WebRTC Video Conferencing, 1080p 60fps Screen Sharing, Synchronized Pastel Whiteboard, and P2P File Transfer engineered by Nayab Farooq." />
+    <meta name="theme-color" content="#8b5cf6" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="AuraMeet" />
+    <meta name="application-name" content="AuraMeet" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>AuraMeet | Real-Time Video, Screen Share & Whiteboard by Nayab Farooq</title>
+  </head>
+  <body class="bg-[#f8faff] text-slate-800 antialiased selection:bg-purple-500 selection:text-white transition-colors duration-200">
+    <div id="root"></div>
+    <script>
+      // Register PWA Service Worker for Desktop App installation
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(
+            (reg) => console.log('[AuraMeet PWA] Service Worker registered with scope:', reg.scope),
+            (err) => console.warn('[AuraMeet PWA] Service Worker registration failed:', err)
+          );
+        });
+      }
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+[
+  {
+    "_id": "758cd851-4707-4723-a6f1-9acf1ba714ed",
+    "roomId": "iyg-wcxk-bbn",
+    "title": "Sprint Review Conference",
+    "hostUserId": "021d091d-18ab-4afd-bf85-2b4c008702cf",
+    "hostName": "TestEngineer",
+    "password": "securePass123",
+    "isLocked": false,
+    "isEnded": false,
+    "maxParticipants": 6,
+    "settings": {
+      "muteOnEntry": false,
+      "allowWhiteboard": true,
+      "allowFileSharing": true,
+      "allowChat": true
+    },
+    "createdAt": "2026-10-03T21:40:41.445Z",
+    "endedAt": null
+  },
+  {
+    "_id": "a2dbcbe0-c909-4e2d-a482-3f5430c293d5",
+    "roomId": "afb-eepf-ele",
+    "title": "codealpha",
+    "hostUserId": null,
+    "hostName": "Nayab Farooq",
+    "password": "123",
+    "isLocked": false,
+    "isEnded": false,
+    "maxParticipants": 6,
+    "settings": {
+      "muteOnEntry": false,
+      "allowWhiteboard": true,
+      "allowFileSharing": true,
+      "allowChat": true
+    },
+    "createdAt": "2026-10-03T21:57:32.357Z",
+    "endedAt": null
+  },
+  {
+    "_id": "c44c437e-9add-40fe-8069-05de30db0f0f",
+    "roomId": "odf-qnug-oid",
+    "title": "ccc",
+    "hostUserId": null,
+    "hostName": "Nayab Farooq",
+    "password": "123",
+    "isLocked": false,
+    "isEnded": false,
+    "maxParticipants": 6,
+    "settings": {
+      "muteOnEntry": false,
+      "allowWhiteboard": true,
+      "allowFileSharing": true,
+      "allowChat": true
+    },
+    "createdAt": "2026-10-03T22:07:35.383Z",
+    "endedAt": null
+  }
+]

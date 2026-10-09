@@ -1,0 +1,39 @@
+{
+  "name": "AuraMeet - Real-Time Video & Collaboration",
+  "short_name": "AuraMeet",
+  "description": "Ultra-low latency HD WebRTC conferencing, screen sharing, collaborative whiteboard, and P2P file transfer engineered by Nayab Farooq.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": "#8b5cf6",
+  "categories": ["productivity", "communication", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/avatars/nayab.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/avatars/nayab.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Instant Meeting",
+      "url": "/?action=new",
+      "description": "Create and host a new AuraMeet video conference"
+    }
+  ]
+}

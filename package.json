@@ -1,0 +1,22 @@
+{
+  "name": "codealpha-realtime-communication-app",
+  "version": "1.0.0",
+  "description": "Production-grade Real-Time Communication Web Application with WebRTC video/audio conferencing, screen sharing, interactive synchronized whiteboard, group messaging, and P2P file transfer.",
+  "scripts": {
+    "server": "npm run start --prefix server",
+    "client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server"
+  },
+  "keywords": [
+    "webrtc",
+    "socketio",
+    "video-conferencing",
+    "whiteboard",
+    "screen-sharing",
+    "p2p-file-transfer",
+    "codealpha"
+  ],
+  "author": "CodeAlpha Full Stack Intern",
+  "license": "MIT"
+}
