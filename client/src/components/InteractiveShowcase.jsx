@@ -633,57 +633,7 @@ export const InteractiveShowcase = () => {
         )}
       </div>
 
-      {/* Bottom Feature Badges */}
-      <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px]">
-        <button
-          type="button"
-          onClick={() => setActiveTab('screenshare')}
-          className={`p-2 rounded-xl cursor-pointer transition-all font-semibold flex items-center justify-center gap-1 shadow-xs ${
-            activeTab === 'screenshare'
-              ? 'bg-orange-500/20 text-orange-600 dark:text-orange-300 border border-orange-500/50 font-bold ring-1 ring-orange-400/30'
-              : 'bg-stone-900/60 text-stone-400 hover:text-stone-200 hover:bg-stone-800/80 border border-stone-800'
-          }`}
-        >
-          <Monitor className="w-3 h-3 text-orange-500" />
-          <span>Screen Share</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('whiteboard')}
-          className={`p-2 rounded-xl cursor-pointer transition-all font-semibold flex items-center justify-center gap-1 shadow-xs ${
-            activeTab === 'whiteboard'
-              ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/50 font-bold ring-1 ring-amber-400/30'
-              : 'bg-stone-900/60 text-stone-400 hover:text-stone-200 hover:bg-stone-800/80 border border-stone-800'
-          }`}
-        >
-          <PenTool className="w-3 h-3 text-amber-500" />
-          <span>Whiteboard</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('videogrid')}
-          className={`p-2 rounded-xl cursor-pointer transition-all font-semibold flex items-center justify-center gap-1 shadow-xs ${
-            activeTab === 'videogrid'
-              ? 'bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/50 font-bold ring-1 ring-rose-400/30'
-              : 'bg-stone-900/60 text-stone-400 hover:text-stone-200 hover:bg-stone-800/80 border border-stone-800'
-          }`}
-        >
-          <Users className="w-3 h-3 text-rose-500" />
-          <span>4-Way Video</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('transfer')}
-          className={`p-2 rounded-xl cursor-pointer transition-all font-semibold flex items-center justify-center gap-1 shadow-xs ${
-            activeTab === 'transfer'
-              ? 'bg-orange-600/20 text-orange-700 dark:text-orange-300 border border-orange-600/50 font-bold ring-1 ring-orange-500/30'
-              : 'bg-stone-900/60 text-stone-400 hover:text-stone-200 hover:bg-stone-800/80 border border-stone-800'
-          }`}
-        >
-          <FileUp className="w-3 h-3 text-orange-500" />
-          <span>P2P Data</span>
-        </button>
-      </div>
+
     </div>
   );
 };

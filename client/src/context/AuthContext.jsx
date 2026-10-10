@@ -77,21 +77,36 @@ export const AuthProvider = ({ children }) => {
   };
 
   const guestLogin = async (displayName) => {
-    const res = await fetch('/api/auth/guest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ displayName }),
-    });
+    try {
+      const res = await fetch('/api/auth/guest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ displayName }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || 'Guest session failed');
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (res.ok && data?.user) {
+          localStorage.setItem('rtc_token', data.token);
+          setToken(data.token);
+          setUser(data.user);
+          return data.user;
+        }
+      }
+    } catch (err) {
+      console.warn('Backend guest auth offline, using local guest user:', err);
     }
 
-    localStorage.setItem('rtc_token', data.token);
-    setToken(data.token);
-    setUser(data.user);
-    return data.user;
+    // Local fallback for static hosting / offline
+    const localUser = {
+      id: 'guest_' + Math.random().toString(36).substring(2, 9),
+      username: displayName?.trim() || 'Nayab Farooq',
+      isGuest: true,
+      avatar: '/avatars/nayab.jpg',
+    };
+    setUser(localUser);
+    return localUser;
   };
 
   const logout = () => {

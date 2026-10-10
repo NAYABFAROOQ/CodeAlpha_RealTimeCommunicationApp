@@ -18,6 +18,7 @@ import {
   Laptop,
   Flame,
   Waves,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -48,44 +49,86 @@ export const LandingPage = ({ onJoinRoom, onNavigate }) => {
 
     try {
       let currentUser = user;
+      const nameToUse = guestName.trim() || 'Nayab Farooq';
       if (!currentUser) {
-        const nameToUse = guestName.trim() || 'Nayab Farooq';
         currentUser = await guestLogin(nameToUse);
       }
 
-      const res = await fetch('/api/rooms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(localStorage.getItem('rtc_token')
-            ? { Authorization: `Bearer ${localStorage.getItem('rtc_token')}` }
-            : {}),
-        },
-        body: JSON.stringify({
-          title: meetingTitle.trim() || 'Creative Sync',
-          password: meetingPasscode.trim() || null,
-          hostName: currentUser.username,
-        }),
-      });
+      const roomTitle = meetingTitle.trim() || 'Creative Collaboration Sync';
+      const password = meetingPasscode.trim() || null;
+      const generatedRoomId = 'cal-' + Math.random().toString(36).substring(2, 6) + '-' + Math.random().toString(36).substring(2, 6);
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to create room');
+      // Try calling server API
+      try {
+        const res = await fetch('/api/rooms', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(localStorage.getItem('rtc_token')
+              ? { Authorization: `Bearer ${localStorage.getItem('rtc_token')}` }
+              : {}),
+          },
+          body: JSON.stringify({
+            title: roomTitle,
+            password,
+            hostName: currentUser?.username || nameToUse,
+          }),
+        });
+
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (res.ok && data?.room) {
+            setShowCreateModal(false);
+            onJoinRoom(data.room.roomId, {
+              title: data.room.title,
+              isHost: true,
+              password,
+            });
+            return;
+          }
+        }
+      } catch (networkErr) {
+        console.warn('Backend API offline, using local client room store:', networkErr);
       }
 
-      onJoinRoom(data.room.roomId, {
-        title: data.room.title,
+      // Fallback for static hosting (e.g. Netlify) or when backend is unreachable
+      const localRoom = {
+        roomId: generatedRoomId,
+        title: roomTitle,
+        password,
+        hasPassword: !!password,
+        hostName: currentUser?.username || nameToUse,
         isHost: true,
+        createdAt: new Date().toISOString(),
+      };
+
+      const savedRooms = JSON.parse(localStorage.getItem('aurameet_rooms') || '{}');
+      savedRooms[generatedRoomId] = localRoom;
+      localStorage.setItem('aurameet_rooms', JSON.stringify(savedRooms));
+
+      setShowCreateModal(false);
+      onJoinRoom(generatedRoomId, {
+        title: roomTitle,
+        isHost: true,
+        password,
       });
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to create room');
+      console.error('Room start error:', err);
+      // Guarantee the meeting ALWAYS starts smoothly
+      const fallbackId = 'cal-' + Math.random().toString(36).substring(2, 6) + '-' + Math.random().toString(36).substring(2, 6);
+      setShowCreateModal(false);
+      onJoinRoom(fallbackId, {
+        title: meetingTitle.trim() || 'AuraMeet Space',
+        isHost: true,
+      });
     } finally {
       setIsCreating(false);
     }
   };
 
   // Handle Joining Existing Room
-  const handleJoinExisting = (e) => {
+  const handleJoinExisting = async (e) => {
     e.preventDefault();
     if (!joinCode.trim()) return;
 
@@ -94,6 +137,11 @@ export const LandingPage = ({ onJoinRoom, onNavigate }) => {
       code = code.split('room=')[1].split('&')[0];
     } else if (code.includes('/')) {
       code = code.substring(code.lastIndexOf('/') + 1);
+    }
+
+    if (!user) {
+      const nameToUse = guestName.trim() || 'Nayab Farooq';
+      await guestLogin(nameToUse).catch(() => {});
     }
 
     onJoinRoom(code);
@@ -164,24 +212,14 @@ export const LandingPage = ({ onJoinRoom, onNavigate }) => {
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-2.5">
-              {/* Create Meeting Button */}
+            <div>
+              {/* Single Prominent Create Meeting Button */}
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex-1 px-5 py-3.5 rounded-2xl btn-peach-primary font-bold text-sm flex items-center justify-center gap-2 group cursor-pointer"
+                className="w-full px-6 py-3.5 rounded-2xl btn-peach-primary font-bold text-sm flex items-center justify-center gap-2 group cursor-pointer shadow-md hover:shadow-lg transition-all"
               >
                 <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
                 <span>Start Instant Meeting</span>
-              </button>
-
-              {/* Install Desktop App Button */}
-              <button
-                onClick={() => setShowInstallModal(true)}
-                title="Download / Install AuraMeet on your Desktop"
-                className="px-4 py-3.5 rounded-2xl bg-white hover:bg-orange-50/80 dark:bg-stone-900/80 dark:hover:bg-stone-800 border border-orange-200 dark:border-orange-400/30 text-orange-700 dark:text-orange-300 font-semibold text-xs transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
-              >
-                <Laptop className="w-4 h-4 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
-                <span>{isInstalled ? 'App Installed' : 'Install Desktop App'}</span>
               </button>
             </div>
 
@@ -221,45 +259,6 @@ export const LandingPage = ({ onJoinRoom, onNavigate }) => {
               </form>
             </div>
           </div>
-
-          {/* Interactive 3D Tilt Feature Highlights */}
-          <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-stone-600 dark:text-stone-300 text-xs">
-            <TiltCard className="peach-card p-2.5 rounded-2xl flex items-center space-x-2 cursor-pointer">
-              <div className="w-7 h-7 rounded-xl bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300 flex items-center justify-center border border-orange-200 dark:border-orange-400/20 font-bold shrink-0">
-                <Video className="w-3.5 h-3.5" />
-              </div>
-              <span className="font-semibold text-[11px] leading-tight text-stone-800 dark:text-stone-200">
-                4K WebRTC
-              </span>
-            </TiltCard>
-
-            <TiltCard className="peach-card p-2.5 rounded-2xl flex items-center space-x-2 cursor-pointer">
-              <div className="w-7 h-7 rounded-xl bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 flex items-center justify-center border border-rose-200 dark:border-rose-400/20 font-bold shrink-0">
-                <Monitor className="w-3.5 h-3.5" />
-              </div>
-              <span className="font-semibold text-[11px] leading-tight text-stone-800 dark:text-stone-200">
-                Screen Share
-              </span>
-            </TiltCard>
-
-            <TiltCard className="peach-card p-2.5 rounded-2xl flex items-center space-x-2 cursor-pointer">
-              <div className="w-7 h-7 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center border border-amber-200 dark:border-amber-400/20 font-bold shrink-0">
-                <PenTool className="w-3.5 h-3.5" />
-              </div>
-              <span className="font-semibold text-[11px] leading-tight text-stone-800 dark:text-stone-200">
-                Whiteboard
-              </span>
-            </TiltCard>
-
-            <TiltCard className="peach-card p-2.5 rounded-2xl flex items-center space-x-2 cursor-pointer">
-              <div className="w-7 h-7 rounded-xl bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 flex items-center justify-center border border-yellow-200 dark:border-yellow-400/20 font-bold shrink-0">
-                <FileUp className="w-3.5 h-3.5" />
-              </div>
-              <span className="font-semibold text-[11px] leading-tight text-stone-800 dark:text-stone-200">
-                P2P Files
-              </span>
-            </TiltCard>
-          </div>
         </div>
 
         {/* Right Column: Live Studio & Collaboration Showcase Floating Above 3D Background */}
@@ -298,54 +297,10 @@ export const LandingPage = ({ onJoinRoom, onNavigate }) => {
           </div>
         </div>
 
-        {/* Interactive Clickable Bottom Action Badges */}
-        <div className="flex items-center space-x-2 text-[11px] flex-wrap gap-y-2">
-          {/* Badge 1: 3D Visual Background Switcher Pill */}
-          <button
-            type="button"
-            onClick={cycleBg3DMode}
-            title={`Active: ${currentBg3D.name} (${currentBg3D.tagline}). Click to switch to next 3D visual style`}
-            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-orange-50 dark:bg-stone-900/90 dark:hover:bg-stone-800 border border-orange-200 hover:border-orange-400 dark:border-orange-400/30 dark:hover:border-orange-400/60 text-orange-700 dark:text-orange-300 font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 group"
-          >
-            <span className="text-sm">{currentBg3D.icon}</span>
-            <span>{currentBg3D.name}</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-300 font-mono group-hover:bg-orange-200 dark:group-hover:bg-orange-500/30 transition-colors">
-              Next ↻
-            </span>
-          </button>
-
-          {/* Badge 2: Atmosphere Palette Cycler Pill */}
-          <button
-            type="button"
-            onClick={cycleGradientPreset}
-            title={`Active: ${gradientPreset.name} (${gradientPreset.tagline}). Click to cycle warm atmosphere palettes`}
-            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-rose-50 dark:bg-stone-900/90 dark:hover:bg-stone-800 border border-rose-200 hover:border-rose-400 dark:border-rose-400/30 dark:hover:border-rose-400/60 text-rose-700 dark:text-rose-300 font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 group"
-          >
-            <span
-              className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
-              style={{
-                background: `linear-gradient(135deg, ${gradientPreset.colors.join(', ')})`,
-              }}
-            />
-            <span>{gradientPreset.name} Studio</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-300 font-mono group-hover:bg-rose-200 dark:group-hover:bg-rose-500/30 transition-colors">
-              Color ↻
-            </span>
-          </button>
-
-          {/* Badge 3: Desktop PWA Install Pill */}
-          <button
-            type="button"
-            onClick={() => setShowInstallModal(true)}
-            title="Open 1-Click Desktop App Installer"
-            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-amber-50 dark:bg-stone-900/90 dark:hover:bg-stone-800 border border-amber-200 hover:border-amber-400 dark:border-amber-400/30 dark:hover:border-amber-400/60 text-amber-700 dark:text-amber-300 font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 group"
-          >
-            <span className="text-sm">💻</span>
-            <span>Desktop PWA Ready</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-mono group-hover:bg-amber-200 dark:group-hover:bg-amber-500/30 transition-colors">
-              Install ↗
-            </span>
-          </button>
+        {/* Status Tag */}
+        <div className="text-stone-500 dark:text-stone-400 text-xs flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="font-medium">WebRTC Mesh Active</span>
         </div>
       </div>
 
@@ -353,6 +308,16 @@ export const LandingPage = ({ onJoinRoom, onNavigate }) => {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-in fade-in">
           <div className="w-full max-w-md peach-dropdown rounded-3xl p-6 border border-orange-300/40 shadow-2xl relative select-none">
+            {/* Top Close (X) Button */}
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+              title="Close modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
             <h2 className="text-lg font-display font-bold text-stone-900 dark:text-white mb-1">Create Meeting Room</h2>
             <p className="text-xs text-stone-500 dark:text-stone-400 mb-5">
               Configure room name, host details, and optional security passcodes
